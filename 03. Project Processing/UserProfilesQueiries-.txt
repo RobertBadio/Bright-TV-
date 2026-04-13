@@ -1,0 +1,60 @@
+--DATA LOADING--
+select * 
+from `workspace`.`default`.`bright_tv_u` 
+limit 100;
+
+-- Count NULLs and 'None' strings per column
+SELECT 
+  COUNT(*) as total_rows,
+  SUM(CASE WHEN Name IS NULL OR Name = 'None' THEN 1 ELSE 0 END) as name_missing,
+  SUM(CASE WHEN Gender IS NULL OR Gender = 'None' THEN 1 ELSE 0 END) as gender_missing,
+  SUM(CASE WHEN Age IS NULL THEN 1 ELSE 0 END) as age_missing
+FROM workspace.default.bright_tv_u;
+
+-- Replace NULLs with defaults
+SELECT 
+  UserID,
+  COALESCE(Name, 'Unknown') as Name,
+  COALESCE(Age, 0) as Age,
+  IFNULL(Province, 'Unknown') as Province
+FROM workspace.default.bright_tv_u;
+
+-- Convert 'None' to 'Unknown'
+SELECT 
+  CASE WHEN Gender = 'None' THEN 'Unknown' ELSE Gender END as Gender,
+  CASE WHEN Race = 'None' THEN 'Unknown' ELSE Race END as Race
+FROM workspace.default.bright_tv_u;
+
+-- Remove extra spaces
+SELECT 
+  TRIM(Name) as Name,
+  TRIM(Email) as Email
+FROM workspace.default.bright_tv_u;
+
+--REMOVE DUPLICATES AND KEEP THE FIRST RECORD
+SELECT DISTINCT *
+FROM workspace.default.bright_tv_u;
+
+--total users in the dataset
+
+SELECT COUNT(DISTINCT UserID) as total_users
+FROM workspace.default.bright_tv_u;
+
+SELECT
+  CASE
+    WHEN Age BETWEEN 01 AND 09 THEN 'Kids'
+    WHEN Age BETWEEN 10 AND 16 THEN 'Teens'
+    WHEN Age BETWEEN 17 AND 25 THEN 'Young Adults'
+    WHEN Age BETWEEN 26 AND 35  THEN 'Adults'
+    WHEN Age BETWEEN 36 AND 55 THEN 'Older Adults'
+    WHEN Age BETWEEN 56 AND 75 THEN 'Seniors'
+    WHEN Age BETWEEN 76 AND 99 THEN 'Elderly'
+    ELSE 'miners'
+  END AS Age_Group,
+  COUNT(*) AS Count
+FROM workspace.default.bright_tv_u
+GROUP BY
+  Age_Group
+ORDER BY
+  Count DESC;
+
